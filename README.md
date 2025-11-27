@@ -44,24 +44,9 @@ The solution consists of 6 main components:
 
 ## Installation
 
+See the full SQL script (`SnowflakeInsightsAssistant.sql`) for the complete instructions.
+
 ### Step 1: Create Database and Warehouse
-
-```sql
--- Create a database and schema
-CREATE DATABASE IF NOT EXISTS SNOWFLAKE_INSIGHTS;
-CREATE SCHEMA IF NOT EXISTS SNOWFLAKE_INSIGHTS.AGENTS;
-
--- Create dedicated warehouse to run the Agent
-CREATE OR REPLACE WAREHOUSE SNOWFLAKE_INSIGHTS_WH
-WITH
-    warehouse_type='STANDARD'
-    warehouse_size='X-Small'
-    auto_suspend=60
-    initially_suspended=TRUE;
-
-USE SCHEMA SNOWFLAKE_INSIGHTS.AGENTS;
-```
-
 ### Step 2: Create Semantic View
 
 The semantic view provides structured access to four key Account Usage views:
@@ -73,24 +58,6 @@ The semantic view provides structured access to four key Account Usage views:
 See the full SQL script (`SnowflakeInsightsAssistant.sql`) for the complete semantic view definition with all facts and dimensions.
 
 ### Step 3: Import Snowflake Documentation Knowledge Extension
-
-```sql
--- Check available listings
-SHOW AVAILABLE LISTINGS;
-
--- Request the listing
-CALL SYSTEM$REQUEST_LISTING_AND_WAIT('GZSTZ67BY9OQ4');
-
--- Accept legal terms
-CALL SYSTEM$ACCEPT_LEGAL_TERMS('DATA_EXCHANGE_LISTING', 'GZSTZ67BY9OQ4');
-
--- Import the share
-CREATE DATABASE SNOWFLAKE_DOCUMENTATION
-FROM LISTING 'GZSTZ67BY9OQ4';
-
--- Verify the share is imported
-SHOW SHARES LIKE '%Docs%';
-```
 
 ### Step 4: Create the Snowflake Agent
 
@@ -104,17 +71,6 @@ See the SQL script for the complete agent specification.
 
 ### Step 5: Configure Snowflake Intelligence
 
-```sql
--- Check if Snowflake Intelligence object exists
-SHOW SNOWFLAKE INTELLIGENCES;
-
--- Create the Snowflake Intelligence object
-CREATE SNOWFLAKE INTELLIGENCE SNOWFLAKE_INTELLIGENCE_OBJECT_DEFAULT;
-
--- Add your agent to the Snowflake Intelligence object
-ALTER SNOWFLAKE INTELLIGENCE SNOWFLAKE_INTELLIGENCE_OBJECT_DEFAULT
-ADD AGENT SNOWFLAKE_INSIGHTS.AGENTS.SNOWFLAKE_INSIGHTS_ASSISTANT;
-```
 
 ### Step 6: Access the Agent
 
@@ -176,48 +132,6 @@ The semantic view integrates the following Account Usage metrics:
 - Daily credit usage and billing
 - Cloud services adjustments
 - Service types (warehouse, search optimization, etc.)
-
-## Verified Queries
-
-The agent includes verified queries such as:
-
-- **Idle Credits Analysis**: "Show me the credits used in idle time last 10 days"
-
-```sql
-SELECT
-    warehouse_name,
-    ROUND(SUM(credits_used_compute),2) as wh_credits,
-    ROUND(SUM(credits_attributed_compute_queries),2) as query_credits,
-    wh_credits - query_credits as wh_idle_credits
-FROM SNOWFLAKE.ACCOUNT_USAGE.WAREHOUSE_METERING_HISTORY
-WHERE start_time::date >= DATEADD('days', -10, CURRENT_DATE())
-GROUP BY ALL;
-```
-
-## Cleanup (Optional)
-
-If you need to remove the objects, use the cleanup scripts provided at the end of the SQL file:
-
-```sql
--- Remove agent from Snowflake Intelligence
-ALTER SNOWFLAKE INTELLIGENCE SNOWFLAKE_INTELLIGENCE_OBJECT_DEFAULT
-DROP AGENT SNOWFLAKE_INSIGHTS.AGENTS.SNOWFLAKE_INSIGHTS_ASSISTANT;
-
--- Drop the agent
-DROP AGENT SNOWFLAKE_INSIGHTS.AGENTS.SNOWFLAKE_INSIGHTS_ASSISTANT;
-
--- Drop the semantic view
-DROP SEMANTIC VIEW SNOWFLAKE_INSIGHTS.AGENTS.SNOWFLAKE_USAGE_ASSISTANT_SV;
-
--- Drop the documentation database
-DROP DATABASE SNOWFLAKE_DOCUMENTATION;
-
--- Drop the database
-DROP DATABASE SNOWFLAKE_INSIGHTS;
-
--- Drop the warehouse
-DROP WAREHOUSE SNOWFLAKE_INSIGHTS_WH;
-```
 
 ## Key Benefits
 
