@@ -1,5 +1,5 @@
 # Snowflake Insights Assistant
-This is based on amazing work by my colleague [Kaitlyn Wells] (https://www.linkedin.com/in/kaitlyn-wells-b75752b6/) 
+This is based on amazing work by my colleague [Kaitlyn Wells](https://www.linkedin.com/in/kaitlyn-wells-b75752b6/) 
 
 A comprehensive Snowflake Agent that provides intelligent query performance analysis and optimization recommendations using your account's usage data and Snowflake documentation.
 
